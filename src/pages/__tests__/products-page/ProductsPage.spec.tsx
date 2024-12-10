@@ -5,7 +5,7 @@ import { ReactNode } from "react";
 import { AppProvider } from "../../../context/AppProvider";
 import { MockWebServer } from "../../../test/MockWebServer";
 import { givenEmptyProducts, givenProducts } from "./ProductsPage.fixture";
-import { verifyHeader } from "./ProductsPage.helpers";
+import { verifyHeader, verifyRows, waitUntilTableIsLoaded } from "./ProductsPage.helpers";
 
 const mockWebServer = new MockWebServer();
 
@@ -45,5 +45,19 @@ describe("ProductsPage", () => {
         expect(rows).toHaveLength(1);
 
         verifyHeader(rows[0]);
+    });
+
+    test("Should show a table when data", async () => {
+        const products = givenProducts(mockWebServer);
+
+        myCustomRender(<ProductsPage />);
+
+        await waitUntilTableIsLoaded();
+
+        const [header, ...rows] = await screen.findAllByRole("row");
+
+        verifyHeader(header);
+        // @ts-expect-error JSON data is not typed
+        verifyRows(rows, products);
     });
 });

@@ -10,6 +10,8 @@ export function givenProducts(mockWebServer: MockWebServer) {
             response: ResponseJSON,
         },
     ]);
+
+    return ResponseJSON;
 }
 
 export function givenEmptyProducts(mockWebServer: MockWebServer) {

@@ -110,3 +110,21 @@ export async function verifyPriceAndStatusInRow(index: number, newPrice: string,
     await within(cells[3]).findByText(`$${Number(newPrice).toFixed(2)}`);
     await within(cells[4]).findByText(status);
 }
+
+export async function switchUser() {
+    const switchUserButton = await screen.findByRole("button", { name: /user: admin user/i });
+
+    await userEvent.click(switchUserButton);
+
+    const nonAdminUserButton = await screen.findByRole("menuitem", { name: /non admin user/i });
+
+    await userEvent.click(nonAdminUserButton);
+}
+
+export async function verifySaveButtonIsDisabled(dialog: HTMLElement) {
+    const scope = within(dialog);
+
+    const button = scope.getByRole("button", { name: /save/i }).closest("button");
+
+    expect(button).toBeDisabled();
+}

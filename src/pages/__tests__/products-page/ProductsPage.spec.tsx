@@ -8,12 +8,14 @@ import { givenEmptyProducts, givenProducts } from "./ProductsPage.fixture";
 import {
     openDialogToEditPrice,
     savePrice,
+    switchUser,
     typePrice,
     verifyDialog,
     verifyError,
     verifyHeader,
     verifyPriceAndStatusInRow,
     verifyRows,
+    verifySaveButtonIsDisabled,
     waitUntilTableIsLoaded,
 } from "./ProductsPage.helpers";
 
@@ -99,6 +101,8 @@ describe("ProductsPage", () => {
             await typePrice(dialog, "-10");
 
             await verifyError(dialog, "Invalid price format");
+
+            await verifySaveButtonIsDisabled(dialog);
         });
 
         test("Show an error when price is non numeric", async () => {
@@ -113,6 +117,8 @@ describe("ProductsPage", () => {
             await typePrice(dialog, "hola");
 
             await verifyError(dialog, "Only numbers are allowed");
+
+            await verifySaveButtonIsDisabled(dialog);
         });
 
         test("Show an error when price is over 999.99", async () => {
@@ -127,6 +133,8 @@ describe("ProductsPage", () => {
             await typePrice(dialog, "1000");
 
             await verifyError(dialog, "The max possible price is 999.99");
+
+            await verifySaveButtonIsDisabled(dialog);
         });
 
         test("Should edit price correctly", async () => {
@@ -163,6 +171,22 @@ describe("ProductsPage", () => {
             await savePrice(dialog);
 
             await verifyPriceAndStatusInRow(0, newPrice, "inactive");
+        });
+
+        test("Cannot edit a price if user is not an admin", async () => {
+            givenProducts(mockWebServer);
+
+            myCustomRender(<ProductsPage />);
+
+            await waitUntilTableIsLoaded();
+
+            await switchUser();
+
+            try {
+                await openDialogToEditPrice(0);
+            } catch (error) {
+                await screen.findByText(/only admin users can edit the price of a product/i);
+            }
         });
     });
 });

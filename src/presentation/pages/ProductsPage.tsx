@@ -12,7 +12,7 @@ import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import { useAppContext } from "../context/useAppContext";
 import { ConfirmationDialog } from "../components/ConfirmationDialog";
 
-import { StoreApi } from "../api/StoreApi";
+import { StoreApi } from "../../data/api/StoreApi";
 import { buildProduct, useProducts } from "./useProducts";
 
 const baseColumn: Partial<GridColDef<Product>> = {

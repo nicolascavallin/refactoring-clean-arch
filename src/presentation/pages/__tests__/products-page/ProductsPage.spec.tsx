@@ -3,7 +3,7 @@ import { render, RenderResult, screen } from "@testing-library/react";
 import { ProductsPage } from "../../ProductsPage";
 import { ReactNode } from "react";
 import { AppProvider } from "../../../context/AppProvider";
-import { MockWebServer } from "../../../test/MockWebServer";
+import { MockWebServer } from "../../../../test/MockWebServer";
 import { givenEmptyProducts, givenProducts } from "./ProductsPage.fixture";
 import {
     openDialogToEditPrice,

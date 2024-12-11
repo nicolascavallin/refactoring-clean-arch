@@ -1,39 +1,22 @@
 import { useEffect, useState } from "react";
 import { useReload } from "../hooks/useReload";
-import { RemoteProduct, StoreApi } from "../../data/api/StoreApi";
 import { Product } from "./ProductsPage";
+import { GetProductsUseCase } from "../../domain/GetProducts";
 
-export function useProducts(storeApi: StoreApi) {
+export function useProducts(getProducts: GetProductsUseCase) {
     const [reloadKey, reload] = useReload();
 
     const [products, setProducts] = useState<Product[]>([]);
 
     useEffect(() => {
-        storeApi.getAll().then(response => {
+        getProducts.execute().then(prod => {
             console.debug("Reloading", reloadKey);
-
-            const remoteProducts = response as RemoteProduct[];
-
-            const products = remoteProducts.map(buildProduct);
-
-            setProducts(products);
+            setProducts(prod);
         });
-    }, [reloadKey, storeApi]);
+    }, [getProducts, reloadKey]);
 
     return {
         products,
         reload,
-    };
-}
-
-export function buildProduct(remoteProduct: RemoteProduct): Product {
-    return {
-        id: remoteProduct.id,
-        title: remoteProduct.title,
-        image: remoteProduct.image,
-        price: remoteProduct.price.toLocaleString("en-US", {
-            maximumFractionDigits: 2,
-            minimumFractionDigits: 2,
-        }),
     };
 }

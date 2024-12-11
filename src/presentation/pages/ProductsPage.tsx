@@ -13,7 +13,8 @@ import { useAppContext } from "../context/useAppContext";
 import { ConfirmationDialog } from "../components/ConfirmationDialog";
 
 import { StoreApi } from "../../data/api/StoreApi";
-import { buildProduct, useProducts } from "./useProducts";
+import { useProducts } from "./useProducts";
+import { buildProduct, GetProductsUseCase } from "../../domain/GetProducts";
 
 const baseColumn: Partial<GridColDef<Product>> = {
     disableColumnMenu: true,
@@ -21,6 +22,10 @@ const baseColumn: Partial<GridColDef<Product>> = {
 };
 
 const storeApi = new StoreApi();
+
+function createGetProductsUseCase(): GetProductsUseCase {
+    return new GetProductsUseCase(storeApi);
+}
 
 export const ProductsPage: React.FC = () => {
     const { currentUser } = useAppContext();
@@ -31,7 +36,9 @@ export const ProductsPage: React.FC = () => {
     const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
     const [priceError, setPriceError] = useState<string | undefined>(undefined);
 
-    const { products, reload } = useProducts(storeApi);
+    const getProductsUseCase = useMemo(() => createGetProductsUseCase(), []);
+
+    const { products, reload } = useProducts(getProductsUseCase);
 
     // FIXME: Load product
     // FIXME: User validation

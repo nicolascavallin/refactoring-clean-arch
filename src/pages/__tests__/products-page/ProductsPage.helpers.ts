@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/dom";
 import { expect } from "vitest";
 import { Product } from "../../ProductsPage";
+import { userEvent } from "@testing-library/user-event";
 
 export function verifyHeader(header: HTMLElement) {
     const headerScope = within(header);
@@ -41,4 +42,35 @@ export function verifyRows(rows: HTMLElement[], products: Product[]) {
         within(cells[3]).getByText(`$${Number(productApi.price).toFixed(2)}`);
         within(cells[4]).getByText(productApi.price === "0" ? "inactive" : "active");
     });
+}
+
+export async function openDialogToEditPrice(index: number): Promise<HTMLElement> {
+    const [, ...rows] = screen.getAllByRole("row");
+
+    const row = rows[index];
+
+    const scope = within(row);
+
+    await userEvent.click(scope.getByRole("menuitem"));
+
+    const updatePriceMenu = await screen.findByRole("menuitem", { name: /update price/i });
+
+    await userEvent.click(updatePriceMenu);
+
+    return await screen.findByRole("dialog");
+}
+
+export function verifyDialog(dialog: HTMLElement, product: Product) {
+    const scope = within(dialog);
+
+    scope.getByText("Update price");
+
+    scope.getByText(product.title);
+
+    const image = scope.getByRole("img");
+    expect(image).toHaveAttribute("src", product.image);
+
+    const input = scope.getByRole("textbox");
+
+    expect(input).toHaveValue(Number(product.price).toFixed(2));
 }

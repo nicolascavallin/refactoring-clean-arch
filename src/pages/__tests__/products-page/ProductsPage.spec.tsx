@@ -5,7 +5,13 @@ import { ReactNode } from "react";
 import { AppProvider } from "../../../context/AppProvider";
 import { MockWebServer } from "../../../test/MockWebServer";
 import { givenEmptyProducts, givenProducts } from "./ProductsPage.fixture";
-import { verifyHeader, verifyRows, waitUntilTableIsLoaded } from "./ProductsPage.helpers";
+import {
+    openDialogToEditPrice,
+    verifyDialog,
+    verifyHeader,
+    verifyRows,
+    waitUntilTableIsLoaded,
+} from "./ProductsPage.helpers";
 
 const mockWebServer = new MockWebServer();
 
@@ -35,29 +41,52 @@ describe("ProductsPage", () => {
         expect(heading).toBeNull();
     });
 
-    test("Should show an empty table when no data", async () => {
-        givenEmptyProducts(mockWebServer);
+    describe("Table", () => {
+        test("Should show an empty table when no data", async () => {
+            givenEmptyProducts(mockWebServer);
 
-        myCustomRender(<ProductsPage />);
+            myCustomRender(<ProductsPage />);
 
-        const rows = await screen.findAllByRole("row");
+            const rows = await screen.findAllByRole("row");
 
-        expect(rows).toHaveLength(1);
+            expect(rows).toHaveLength(1);
 
-        verifyHeader(rows[0]);
+            verifyHeader(rows[0]);
+        });
+
+        test("Should show a table when data", async () => {
+            const products = givenProducts(mockWebServer);
+
+            myCustomRender(<ProductsPage />);
+
+            await waitUntilTableIsLoaded();
+
+            const [header, ...rows] = await screen.findAllByRole("row");
+
+            verifyHeader(header);
+            // @ts-expect-error JSON data is not typed
+            verifyRows(rows, products);
+        });
     });
 
-    test("Should show a table when data", async () => {
-        const products = givenProducts(mockWebServer);
+    describe("Edit price", () => {
+        test("Should show a dialog when clicking on a row", async () => {
+            const products = givenProducts(mockWebServer);
 
-        myCustomRender(<ProductsPage />);
+            myCustomRender(<ProductsPage />);
 
-        await waitUntilTableIsLoaded();
+            await waitUntilTableIsLoaded();
 
-        const [header, ...rows] = await screen.findAllByRole("row");
+            const dialog = await openDialogToEditPrice(0);
 
-        verifyHeader(header);
-        // @ts-expect-error JSON data is not typed
-        verifyRows(rows, products);
+            // @ts-expect-error JSON data is not typed
+            verifyDialog(dialog, products[0]);
+
+            // const [_, row] = await screen.findAllByRole("row");
+
+            // row.click();
+
+            // screen.getByRole("dialog");
+        });
     });
 });

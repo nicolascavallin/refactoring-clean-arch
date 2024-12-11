@@ -7,10 +7,12 @@ import { MockWebServer } from "../../../test/MockWebServer";
 import { givenEmptyProducts, givenProducts } from "./ProductsPage.fixture";
 import {
     openDialogToEditPrice,
+    savePrice,
     typePrice,
     verifyDialog,
     verifyError,
     verifyHeader,
+    verifyPriceAndStatusInRow,
     verifyRows,
     waitUntilTableIsLoaded,
 } from "./ProductsPage.helpers";
@@ -125,6 +127,42 @@ describe("ProductsPage", () => {
             await typePrice(dialog, "1000");
 
             await verifyError(dialog, "The max possible price is 999.99");
+        });
+
+        test("Should edit price correctly", async () => {
+            givenProducts(mockWebServer);
+
+            myCustomRender(<ProductsPage />);
+
+            await waitUntilTableIsLoaded();
+
+            const dialog = await openDialogToEditPrice(0);
+
+            const newPrice = "120.99";
+
+            await typePrice(dialog, newPrice);
+
+            await savePrice(dialog);
+
+            await verifyPriceAndStatusInRow(0, newPrice, "active");
+        });
+
+        test("Should edit price as 0 correctly", async () => {
+            givenProducts(mockWebServer);
+
+            myCustomRender(<ProductsPage />);
+
+            await waitUntilTableIsLoaded();
+
+            const dialog = await openDialogToEditPrice(0);
+
+            const newPrice = "0";
+
+            await typePrice(dialog, newPrice);
+
+            await savePrice(dialog);
+
+            await verifyPriceAndStatusInRow(0, newPrice, "inactive");
         });
     });
 });

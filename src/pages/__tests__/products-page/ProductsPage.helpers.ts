@@ -89,3 +89,24 @@ export async function verifyError(dialog: HTMLElement, errorMessage: string) {
 
     await scope.findByText(errorMessage);
 }
+
+export async function savePrice(dialog: HTMLElement) {
+    const scope = within(dialog);
+
+    const button = scope.getByRole("button", { name: /save/i });
+
+    await userEvent.click(button);
+}
+
+export async function verifyPriceAndStatusInRow(index: number, newPrice: string, status: string) {
+    const [, ...rows] = screen.getAllByRole("row");
+
+    const row = rows[index];
+
+    const scope = within(row);
+
+    const cells = scope.getAllByRole("cell");
+
+    await within(cells[3]).findByText(`$${Number(newPrice).toFixed(2)}`);
+    await within(cells[4]).findByText(status);
+}

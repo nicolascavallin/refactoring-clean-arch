@@ -7,7 +7,9 @@ import { MockWebServer } from "../../../test/MockWebServer";
 import { givenEmptyProducts, givenProducts } from "./ProductsPage.fixture";
 import {
     openDialogToEditPrice,
+    typePrice,
     verifyDialog,
+    verifyError,
     verifyHeader,
     verifyRows,
     waitUntilTableIsLoaded,
@@ -81,12 +83,48 @@ describe("ProductsPage", () => {
 
             // @ts-expect-error JSON data is not typed
             verifyDialog(dialog, products[0]);
+        });
 
-            // const [_, row] = await screen.findAllByRole("row");
+        test("Show an error when price is negative", async () => {
+            givenProducts(mockWebServer);
 
-            // row.click();
+            myCustomRender(<ProductsPage />);
 
-            // screen.getByRole("dialog");
+            await waitUntilTableIsLoaded();
+
+            const dialog = await openDialogToEditPrice(0);
+
+            await typePrice(dialog, "-10");
+
+            await verifyError(dialog, "Invalid price format");
+        });
+
+        test("Show an error when price is non numeric", async () => {
+            givenProducts(mockWebServer);
+
+            myCustomRender(<ProductsPage />);
+
+            await waitUntilTableIsLoaded();
+
+            const dialog = await openDialogToEditPrice(0);
+
+            await typePrice(dialog, "hola");
+
+            await verifyError(dialog, "Only numbers are allowed");
+        });
+
+        test("Show an error when price is over 999.99", async () => {
+            givenProducts(mockWebServer);
+
+            myCustomRender(<ProductsPage />);
+
+            await waitUntilTableIsLoaded();
+
+            const dialog = await openDialogToEditPrice(0);
+
+            await typePrice(dialog, "1000");
+
+            await verifyError(dialog, "The max possible price is 999.99");
         });
     });
 });

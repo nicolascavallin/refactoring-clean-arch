@@ -74,3 +74,18 @@ export function verifyDialog(dialog: HTMLElement, product: Product) {
 
     expect(input).toHaveValue(Number(product.price).toFixed(2));
 }
+
+export async function typePrice(dialog: HTMLElement, price: string) {
+    const scope = within(dialog);
+
+    const input = scope.getByRole("textbox", { name: /price/i });
+
+    await userEvent.clear(input);
+    await userEvent.type(input, price);
+}
+
+export async function verifyError(dialog: HTMLElement, errorMessage: string) {
+    const scope = within(dialog);
+
+    await scope.findByText(errorMessage);
+}
